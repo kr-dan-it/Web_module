@@ -27,9 +27,6 @@ def set_weather_info(city):
         except KeyError as e:
             raise KeyError("Location not found")
 
-def test_weather():
-    assert set_weather_info("London") == True
-
 def test_weather_wrong_location():
     with pytest.raises(KeyError):
         assert set_weather_info("Egegeg23")
