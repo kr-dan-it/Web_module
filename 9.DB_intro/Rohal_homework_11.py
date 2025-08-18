@@ -41,14 +41,17 @@ class User:
     def log_in(self, username, password):
         connection = get_db_connection()
         cursor = connection.cursor()
-        user_search = cursor.execute("select * from users where username = ? and password = ?", (username, password))
+        user_search = cursor.execute("select * from users where username = ? and password = ?", (username, password)).fetchone()
         if user_search is None:
             return False
         else:
             return True
 
-def register_user(*args):
-    new_user = User(*args)
+def register_user():
+    new_username = input("Enter your username: ")
+    new_password = input("Enter your password: ")
+    new_email = input("Enter your email: ")
+    new_user = User(new_username, new_password, new_email)
     new_user.register()
 
 def log_user_in():
@@ -68,10 +71,7 @@ def main_function():
         user_input = int(input("What would you like to do? Enter 1 (register), 2 (log in) or 3 (log out): "))
         if user_input in (1, 2, 3):
             if user_input == 1:
-                new_username = input("Enter your username: ")
-                new_password = input("Enter your password: ")
-                new_email = input("Enter your email: ")
-                register_user(new_username, new_email, new_password)
+                register_user()
             if user_input == 2:
                 log_user_in()
             if user_input == 3:
