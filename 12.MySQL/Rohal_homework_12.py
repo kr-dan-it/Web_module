@@ -58,7 +58,7 @@ def register(conn, cursor, username, email, password):
             print(f"User {username} already exists.")
         conn.commit()
 
-def websites(conn, cursor, site_name, username, password, login_method):
+# def websites(conn, cursor, site_name, username, password, login_method):
 
 
 def query(cursor):
