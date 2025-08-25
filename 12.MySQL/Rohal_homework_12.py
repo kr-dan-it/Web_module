@@ -2,10 +2,13 @@ import mysql.connector
 import csv
 import os
 
+with open("pwd.txt", "r") as file:
+    PWD = file.read()
+
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "yb8u^2Y75#MkHy"
+    "password": PWD
 }
 
 DB_NAME = "users_db"
