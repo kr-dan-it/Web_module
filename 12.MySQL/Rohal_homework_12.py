@@ -1,4 +1,5 @@
 import mysql.connector
+import csv
 import os
 
 DB_CONFIG = {
@@ -8,25 +9,6 @@ DB_CONFIG = {
 }
 
 DB_NAME = "users_db"
-
-class User:
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
-        self.current_user = None
-
-    def register(self):
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        try:
-            cursor.execute("insert into users (username, password, email) values(?, ?, ?)", (self.username, self.password, self.email))
-            connection.commit()
-            print(f"User {self.username} successfully registered.")
-        except sqlite3.IntegrityError as e:
-            print(f"User {self.username} already exists.")
-        finally:
-            connection.close()
 
 def connect_to_db(config, db_name=None):
     """Create and return database connection"""
@@ -39,55 +21,62 @@ def connect_to_db(config, db_name=None):
         print(f"Error: {e}")
         return None
 
-class User:
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
-        self.current_user = None
-
-    def register(self):
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        try:
-            cursor.execute("insert into users (username, password, email) values(?, ?, ?)", (self.username, self.password, self.email))
-            connection.commit()
-            print(f"User {self.username} successfully registered.")
-        except sqlite3.IntegrityError as e:
-            print(f"User {self.username} already exists.")
-        finally:
-            connection.close()
-
 def create_database_and_tables(cursor):
     try:
         cursor.execute(f"Create database if not exists {DB_NAME};")
         cursor.execute(f'use {DB_NAME};')
         cursor.execute("""
-        create table if not exists authors (
+        create table if not exists users (
         id int auto_increment primary key,
-        name varchar(30) not null,
-        nationality varchar(30)
+        username varchar(30) not null unique,
+        password varchar(50) not null unique,
+        email varchar(50) not null unique
         );
         """)
 
         cursor.execute("""
-        create table if not exists genres (
-        id int auto_increment primary key,
-        name varchar(30) not null unique 
-        );
-        """)
-
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS books (
+        CREATE TABLE IF NOT EXISTS login_info (
         id integer auto_increment primary key,
-        title varchar(128) not null unique,
-        author_id integer, 
-        genre_id integer,
-        foreign key (author_id) references authors(id),
-        foreign key (genre_id) references genres(id)
+        site_name varchar(70) not null,
+        username varchar(30) not null unique,
+        password varchar(50) not null unique,
+        login_method varchar(30) not null,
+        user_id integer,
+        foreign key (user_id) references users(id)
         );
         """)
 
         print("Database and tables created.")
     except mysql.connector.Error as e:
         print(f"Error: {e}")
+
+def register(conn, cursor, username, email, password):
+        try:
+            cursor.execute("insert into users (username, email, password) values (%s, %s, %s)", (username, email, password))
+            print("User registered successfully")
+        except mysql.connector.IntegrityError:
+            print(f"User {username} already exists.")
+        conn.commit()
+
+def websites(conn, cursor, site_name, username, password, login_method):
+
+
+def query(cursor):
+    cursor.execute("select * from users")
+    print(cursor.fetchall())
+
+def main():
+    try:
+        conn = connect_to_db(DB_CONFIG, DB_NAME)
+        if not conn:
+            print("Connection unsuccessful (w/ db)")
+            return
+        cursor = conn.cursor()
+        register(conn, cursor, "JohnDoe", "john@doe.com", "qwerty")
+        register(conn, cursor, "JaneDoe", "jane@doe.com", "asdfgh")
+        query(cursor)
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
